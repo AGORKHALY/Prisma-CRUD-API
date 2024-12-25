@@ -15,11 +15,8 @@ datasource db {
 
 model User {
   id        Int      @id @default(autoincrement())
-  Ename     String   @db.VarChar(60)
-  ESalary   Int?
-  EStatus   Boolean  @default(true)
-  CreatedAt DateTime @default(now()) @map("created_at")
-  UpdatedAt DateTime @updatedAt @map("updated at")
-
-  @@map("users")
+  name      String
+  salary    Int      @default(20000)
+  status    Boolean  @default(true)
+  createdAt DateTime @default(now())
 }
