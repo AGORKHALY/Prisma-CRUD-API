@@ -3,7 +3,9 @@ const createError = require('http-errors');
 const morgan = require('morgan');
 require('dotenv').config();
 const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./swaggerSpec'); // Import swaggerSpec
+const swaggerSpec = require('./swaggerSpec');
+const authRoutes = require('./routes/auth.route');
+const authenticateToken = require('./middleware/authenticateToken');
 
 const app = express();
 app.use(express.json());
@@ -17,6 +19,18 @@ app.get('/', async (req, res, next) => {
   res.send({ message: 'Awesome it works' });
 });
 
+// Public route for login
+app.use('/auth', authRoutes);
+
+// Example of a protected route
+app.get('/protected', authenticateToken, (req, res) => {
+  res.status(200).json({
+    message: "Access granted to protected route.",
+    user: req.user,
+  });
+});
+
+//route
 app.use('/api', require('./routes/api.route'));
 
 // Handle 404 errors

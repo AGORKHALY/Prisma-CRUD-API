@@ -14,9 +14,29 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  salary    Int      @default(20000)
-  status    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id           Int           @id @default(autoincrement())
+  name         String        @unique // Add this line
+  salary       Int           @default(20000)
+  status       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  Location     Location[]
+  UserPassword UserPassword?
+}
+
+model Location {
+  id       Int    @id @default(autoincrement())
+  empId    Int
+  country  String
+  district String
+  street   String
+
+  user User @relation(fields: [empId], references: [id], onDelete: Cascade)
+}
+
+model UserPassword {
+  id       Int    @id @default(autoincrement())
+  empId    Int    @unique
+  password String
+
+  user User @relation(fields: [empId], references: [id], onDelete: Cascade)
 }

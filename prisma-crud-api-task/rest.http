@@ -1,24 +1,60 @@
-//GET http://localhost:3000/api/users
-
-//GET http://localhost:3000/api/users/2
-
-//POST http://localhost:3000/api/users
-//Content-Type: application/json
-
-//{
-  //"name": "Kapri",
-  //"salary": 30000
-//}
-
-//DELETE http://localhost:3000/api/users/10
-
-PATCH http://localhost:3000/api/users/2
-Content-Type: application/json
-
-{
-  "name": "Milu",
-  "salary": 50000
-}
+# GET http://localhost:3000/api/users
 
 
+# GET http://localhost:3000/api/users/9
 
+
+# POST http://localhost:3000/api/users
+# Content-Type: application/json
+
+# {
+#   "name": "Abc",
+#   "salary": 90000,
+#   "status": true,
+#   "Location": [
+#     {
+#       "country": "Thailand",
+#       "district": "Phuket",
+#       "street": "23 Jump St"
+#     }
+#   ],
+#   "password": "AbcPassword123"
+# }
+
+
+
+# DELETE http://localhost:3000/api/users/11
+
+
+# PATCH http://localhost:3000/api/users/1
+# Content-Type: application/json
+
+# {
+#   "name": "Abhyudaya",
+#   "salary": 20000,
+#   "status": true,
+#   "Location": [
+#     {
+#       "id": 1,
+#       "country": "Nepal",
+#       "district": "Kathmandu",
+#       "street": "Baluwatar"
+#     }
+#   ],
+#   "password": "AbhyudayaPassword123"
+# }
+
+
+
+
+
+# POST http://localhost:3000/auth/login
+# Content-Type: application/json
+
+# {
+#   "name": "Abhyudaya",
+#   "password": "AbhyudayaPassword123"
+# }
+
+# GET http://localhost:3000/protected
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IkFiaHl1ZGF5YSIsImlhdCI6MTczNTI3MjQyMywiZXhwIjoxNzM1Mjc2MDIzfQ.DRoVcJKLVAn1GpHDxkOUjsLHIZdhWD_rZ1OizUUwznI
