@@ -1,7 +1,9 @@
-# GET http://localhost:3000/api/users
+GET http://localhost:3000/api/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IkFiaHl1ZGF5YSIsImlhdCI6MTczNTUzNDI3MiwiZXhwIjoxNzM1NTM3ODcyfQ.KO1Gov6JxvBQVngQx2M-6VwUbvliznZk114SK7cLuGI
 
 
 # GET http://localhost:3000/api/users/9
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IkFiaHl1ZGF5YSIsImlhdCI6MTczNTI5NjM3MCwiZXhwIjoxNzM1Mjk5OTcwfQ.fkF8gLPd4sqOgg7Nw4F4Zw5cL4L7HaWSB6wSSHxCSzA
 
 
 # POST http://localhost:3000/api/users

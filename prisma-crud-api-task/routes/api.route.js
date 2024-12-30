@@ -1,10 +1,11 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
-const { PrismaClient } = require('@prisma/client')
+const { PrismaClient } = require('@prisma/client');
+const authenticateToken = require('../middleware/authenticateToken');
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
-router.get('/users', async (req, res, next) => {
+router.get('/users', authenticateToken, async (req, res, next) => {
   try {
     const users = await prisma.user.findMany({
       include: { Location: true },
@@ -19,8 +20,7 @@ router.get('/users', async (req, res, next) => {
   }
 });
 
-
-router.get('/users/:id', async (req, res, next) => {
+router.get('/users/:id', authenticateToken, async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -33,7 +33,6 @@ router.get('/users/:id', async (req, res, next) => {
     });
 
     if (!user) {
-      // If no user is found, return a 404 response
       return res.status(404).json({
         message: `No user found with ID ${id}`,
         status: 404,
@@ -41,14 +40,12 @@ router.get('/users/:id', async (req, res, next) => {
       });
     }
 
-    // If user is found, return the structured response
     res.status(200).json({
       message: "Required data displayed",
       status: 200,
       data: user,
     });
   } catch (error) {
-    // Handle errors
     res.status(500).json({
       message: `Error fetching user with ID ${req.params.id}`,
       status: 500,
@@ -57,12 +54,11 @@ router.get('/users/:id', async (req, res, next) => {
   }
 });
 
-
+// Create a user (Public Route)
 router.post('/users', async (req, res, next) => {
   try {
-    const { name, salary, status, Location, password } = req.body; // Include 'password' in the request body
+    const { name, salary, status, Location, password } = req.body;
 
-    // Validate the presence of a password
     if (!password) {
       return res.status(400).json({
         message: "Password is required.",
@@ -70,38 +66,34 @@ router.post('/users', async (req, res, next) => {
       });
     }
 
-    // Hash the password before storing it
     const hashedPassword = await bcrypt.hash(password, 16);
 
-    // Create a new user with associated locations and password in the database
     const user = await prisma.user.create({
       data: {
         name,
         salary,
         status,
         Location: {
-          create: Location, // Use nested create for Location model
+          create: Location,
         },
         UserPassword: {
           create: {
-            password: hashedPassword, // Store the hashed password
+            password: hashedPassword,
           },
         },
       },
       include: {
-        Location: true, // Include related Location data in the response
-        UserPassword: true, // Include the password in the response
+        Location: true,
+        UserPassword: true,
       },
     });
 
-    // Return a structured response
     res.status(200).json({
       message: "User, associated locations, and password added successfully",
       status: 200,
       data: user,
     });
   } catch (error) {
-    // Handle errors
     let statusCode;
     let errorMessage;
 
@@ -124,13 +116,10 @@ router.post('/users', async (req, res, next) => {
   }
 });
 
-
-
-router.delete('/users/:id', async (req, res, next) => {
+router.delete('/users/:id', authenticateToken, async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Ensure the ID is a valid number
     if (isNaN(Number(id))) {
       return res.status(400).json({
         message: "Invalid ID provided.",
@@ -138,28 +127,24 @@ router.delete('/users/:id', async (req, res, next) => {
       });
     }
 
-    // Delete associated UserPassword
     await prisma.userPassword.deleteMany({
       where: {
         empId: Number(id),
       },
     });
 
-    // Delete associated locations
     await prisma.location.deleteMany({
       where: {
         empId: Number(id),
       },
     });
 
-    // Delete the user
     await prisma.user.delete({
       where: {
         id: Number(id),
       },
     });
 
-    // Return a structured success response
     res.status(200).json({
       message: "User, associated locations, and password deleted successfully",
       status: 200,
@@ -168,17 +153,14 @@ router.delete('/users/:id', async (req, res, next) => {
     let statusCode;
     let errorMessage;
 
-    // Handle specific Prisma error for record not found
     if (error.name === "PrismaClientKnownRequestError" && error.code === "P2025") {
       statusCode = 404;
       errorMessage = `User with ID ${req.params.id} not found.`;
     } else {
-      // Handle generic errors
       statusCode = 500;
       errorMessage = "An unexpected error occurred.";
     }
 
-    // Return an error response without crashing the server
     res.status(statusCode).json({
       message: errorMessage,
       status: statusCode,
@@ -187,14 +169,11 @@ router.delete('/users/:id', async (req, res, next) => {
   }
 });
 
-
-
-router.patch('/users/:id', async (req, res, next) => {
+router.patch('/users/:id', authenticateToken, async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, salary, status, Location, password } = req.body; // Include 'password' in the request body
+    const { name, salary, status, Location, password } = req.body;
 
-    // Ensure the ID is a valid number
     if (isNaN(Number(id))) {
       return res.status(400).json({
         message: "Invalid ID provided.",
@@ -202,13 +181,11 @@ router.patch('/users/:id', async (req, res, next) => {
       });
     }
 
-    // Hash the password if it exists in the request body
     let hashedPassword = null;
     if (password) {
-      hashedPassword = await bcrypt.hash(password, 16); // Generate a 16-byte hashed password
+      hashedPassword = await bcrypt.hash(password, 16);
     }
 
-    // Update the user and associated locations
     const updatedUser = await prisma.user.update({
       where: {
         id: Number(id),
@@ -220,7 +197,7 @@ router.patch('/users/:id', async (req, res, next) => {
         Location: Location
           ? {
             upsert: Location.map((location) => ({
-              where: { id: location.id }, // Correctly check if the location exists by ID
+              where: { id: location.id },
               create: {
                 country: location.country,
                 district: location.district,
@@ -237,7 +214,7 @@ router.patch('/users/:id', async (req, res, next) => {
         UserPassword: hashedPassword
           ? {
             upsert: {
-              where: { empId: Number(id) }, // Check if password exists for the user
+              where: { empId: Number(id) },
               create: { password: hashedPassword },
               update: { password: hashedPassword },
             },
@@ -245,12 +222,11 @@ router.patch('/users/:id', async (req, res, next) => {
           : undefined,
       },
       include: {
-        Location: true, // Include the updated locations in the response
-        UserPassword: true, // Include the updated password in the response
+        Location: true,
+        UserPassword: true,
       },
     });
 
-    // Return a structured response for success
     res.status(200).json({
       message: "User, associated locations, and password updated successfully",
       status: 200,
@@ -260,17 +236,14 @@ router.patch('/users/:id', async (req, res, next) => {
     let statusCode;
     let errorMessage;
 
-    // Handle specific Prisma error for record not found
     if (error.name === "PrismaClientKnownRequestError" && error.code === "P2025") {
       statusCode = 404;
       errorMessage = `User with ID ${req.params.id} not found.`;
     } else {
-      // Handle generic errors
       statusCode = 500;
       errorMessage = "An unexpected error occurred.";
     }
 
-    // Return an error response without crashing the server
     res.status(statusCode).json({
       message: errorMessage,
       status: statusCode,
@@ -279,10 +252,8 @@ router.patch('/users/:id', async (req, res, next) => {
   }
 });
 
-
-
-
 module.exports = router;
+
 
 
 
